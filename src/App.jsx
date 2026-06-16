@@ -320,7 +320,7 @@ function AuthModal({ onClose, onAuth }) {
 }
 
 // ── AuthorProfile ───────────────────────────────────────────
-function AuthorProfile({ authorName, stories, onClose, onOpen, currentUser, onUpdateProfile }) {
+function AuthorProfile({ authorName, stories, onClose, onOpen, currentUser, onUpdateProfile,  onDeleteStory }) {
   const isMe = currentUser && currentUser.name === authorName;
   const info = isMe ? currentUser : (AUTHORS[authorName] || { bio: "Autor en Books.", joined: "2025", avatar: "📘" });
   const [editing, setEditing] = useState(false);
@@ -375,7 +375,38 @@ function AuthorProfile({ authorName, stories, onClose, onOpen, currentUser, onUp
         <div style={{ fontSize: 11, color: "#4a4a6a", fontWeight: 700, letterSpacing: 2, textTransform: "uppercase", marginBottom: 4 }}>
           {authorStories.length} historia{authorStories.length !== 1 ? "s" : ""} publicada{authorStories.length !== 1 ? "s" : ""}
         </div>
-        {authorStories.map(s => <StoryCard key={s.id} story={s} onOpen={onOpen} onAuthor={() => {}} />)}
+       {authorStories.map(s => (
+  <div key={s.id}>
+    <StoryCard
+      story={s}
+      onOpen={onOpen}
+      onAuthor={() => {}}
+    />
+
+    {isMe && (
+      <div style={{ marginBottom: 20 }}>
+        <button
+          onClick={() => {
+            if (window.confirm(`¿Borrar "${s.title}"?`)) {
+              onDeleteStory(s.id);
+            }
+          }}
+          style={{
+            background: "#8b0000",
+            color: "white",
+            border: "none",
+            padding: "8px 14px",
+            borderRadius: 6,
+            cursor: "pointer",
+            fontWeight: 700
+          }}
+        >
+          🗑️ Borrar historia
+        </button>
+      </div>
+    )}
+  </div>
+))}
       </div>
     </div>
   );
