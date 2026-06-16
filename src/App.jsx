@@ -421,12 +421,16 @@ function AuthorProfile({ authorName, stories, onClose, onOpen, currentUser, onUp
           ✏️ Editar historia
         </button>
 
-      </div>
+          </div>
     )}
 
   </div>
-))} 
-  
+))}
+
+      </div>
+    </div>
+  );
+}
 
 const labelStyle = { display: "block", fontSize: 11, fontWeight: 700, color: "#6666aa", letterSpacing: 1, textTransform: "uppercase", marginBottom: 5 };
 const fieldStyle = () => ({ width: "100%", padding: "10px 12px", background: "#0f0f1e", border: "1px solid #2a2a4a", borderRadius: 8, color: "#f0eae0", fontSize: 14, outline: "none", boxSizing: "border-box" });
