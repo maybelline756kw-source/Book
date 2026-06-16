@@ -319,95 +319,344 @@ function AuthModal({ onClose, onAuth }) {
   );
 }
 
-// ── AuthorProfile ───────────────────────────────────────────
-function AuthorProfile({ authorName, stories, onClose, onOpen, currentUser, onUpdateProfile,  onDeleteStory, onEditStory }) {
+function AuthorProfile({
+  authorName,
+  stories,
+  onClose,
+  onOpen,
+  currentUser,
+  onUpdateProfile,
+  onDeleteStory,
+  onEditStory
+}) {
   const isMe = currentUser && currentUser.name === authorName;
-  const info = isMe ? currentUser : (AUTHORS[authorName] || { bio: "Autor en Books.", joined: "2025", avatar: "📘" });
+
+  const info = isMe
+    ? currentUser
+    : (AUTHORS[authorName] || {
+        bio: "Autor en Books.",
+        joined: "2025",
+        avatar: "📘"
+      });
+
   const [editing, setEditing] = useState(false);
   const [bioDraft, setBioDraft] = useState(info.bio);
+
   const authorStories = stories.filter(s => s.author === authorName);
+
   const totalReads = authorStories.reduce((a, s) => a + s.reads, 0);
   const totalLikes = authorStories.reduce((a, s) => a + s.likes, 0);
-  const earnings = authorStories.reduce((a, s) => a + s.price * Math.round(s.reads * 0.03), 0);
 
-  const saveBio = () => { onUpdateProfile({ ...currentUser, bio: bioDraft }); setEditing(false); };
+  const earnings = authorStories.reduce(
+    (a, s) => a + s.price * Math.round(s.reads * 0.03),
+    0
+  );
 
+  const saveBio = () => {
+    onUpdateProfile({ ...currentUser, bio: bioDraft });
+    setEditing(false);
+  };
+
+  // ── STYLES ─────────────────────────────
+  const labelStyle = {
+    display: "block",
+    fontSize: 11,
+    fontWeight: 700,
+    color: "#6666aa",
+    letterSpacing: 1,
+    textTransform: "uppercase",
+    marginBottom: 5
+  };
+
+  const fieldStyle = () => ({
+    width: "100%",
+    padding: "10px 12px",
+    background: "#0f0f1e",
+    border: "1px solid #2a2a4a",
+    borderRadius: 8,
+    color: "#f0eae0",
+    fontSize: 14,
+    outline: "none",
+    boxSizing: "border-box"
+  });
+
+  const primaryBtn = (disabled) => ({
+    padding: "12px",
+    background: disabled ? "#2a2a4a" : "#e94560",
+    border: "none",
+    color: disabled ? "#4a4a6a" : "#fff",
+    borderRadius: 8,
+    fontSize: 14,
+    fontWeight: 700,
+    cursor: disabled ? "not-allowed" : "pointer",
+    width: "100%"
+  });
+
+  // ── RETURN ─────────────────────────────
   return (
-    <div style={{ position: "fixed", inset: 0, zIndex: 150, background: "#0f0f1e", overflowY: "auto" }}>
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 150,
+        background: "#0f0f1e",
+        overflowY: "auto"
+      }}
+    >
       <div style={{ maxWidth: 720, margin: "0 auto", padding: "20px 20px 60px" }}>
-        <button onClick={onClose} style={{ background: "none", border: "none", color: "#8888aa", cursor: "pointer", fontSize: 22, marginBottom: 16 }}>← Volver</button>
+        <button
+          onClick={onClose}
+          style={{
+            background: "none",
+            border: "none",
+            color: "#8888aa",
+            cursor: "pointer",
+            fontSize: 22,
+            marginBottom: 16
+          }}
+        >
+          ← Volver
+        </button>
 
-        <div style={{ display: "flex", gap: 20, alignItems: "center", marginBottom: 24, flexWrap: "wrap" }}>
-          <div style={{ width: 76, height: 76, borderRadius: "50%", background: "linear-gradient(145deg,#e94560,#533483)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 32, flexShrink: 0 }}>{info.avatar}</div>
+        {/* HEADER */}
+        <div
+          style={{
+            display: "flex",
+            gap: 20,
+            alignItems: "center",
+            marginBottom: 24,
+            flexWrap: "wrap"
+          }}
+        >
+          <div
+            style={{
+              width: 76,
+              height: 76,
+              borderRadius: "50%",
+              background: "linear-gradient(145deg,#e94560,#533483)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: 32,
+              flexShrink: 0
+            }}
+          >
+            {info.avatar}
+          </div>
+
           <div style={{ flex: 1, minWidth: 200 }}>
-            <h1 style={{ margin: "0 0 4px", fontSize: 24, color: "#f0eae0", fontFamily: "Georgia, serif", fontWeight: 800 }}>{authorName}</h1>
-            <div style={{ fontSize: 12.5, color: "#6666aa" }}>Autor desde {info.joined}{isMe && <span style={{ color: "#1b998b", marginLeft: 8 }}>· Tu perfil</span>}</div>
-          </div>
-        </div>
+            <h1
+              style={{
+                margin: "0 0 4px",
+                fontSize: 24,
+                color: "#f0eae0",
+                fontFamily: "Georgia, serif",
+                fontWeight: 800
+              }}
+            >
+              {authorName}
+            </h1>
 
-        <div style={{ display: "flex", gap: 12, marginBottom: 24, flexWrap: "wrap" }}>
-          {[{ label: "Historias", val: authorStories.length }, { label: "Lecturas", val: fmtNum(totalReads) }, { label: "Me gusta", val: fmtNum(totalLikes) }].concat(isMe ? [{ label: "Ganancias est.", val: "$" + earnings.toFixed(2) }] : []).map((s, i) => (
-            <div key={i} style={{ flex: 1, minWidth: 90, background: "#1a1a2e", border: "1px solid #2a2a4a", borderRadius: 10, padding: "14px 12px", textAlign: "center" }}>
-              <div style={{ fontSize: 20, fontWeight: 800, color: "#f0eae0" }}>{s.val}</div>
-              <div style={{ fontSize: 11, color: "#6666aa", marginTop: 2 }}>{s.label}</div>
+            <div style={{ fontSize: 12.5, color: "#6666aa" }}>
+              Autor desde {info.joined}
+              {isMe && (
+                <span style={{ color: "#1b998b", marginLeft: 8 }}>
+                  · Tu perfil
+                </span>
+              )}
             </div>
-          ))}
+          </div>
         </div>
 
-        <div style={{ background: "#1a1a2e", border: "1px solid #2a2a4a", borderRadius: 10, padding: "16px 18px", marginBottom: 28 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-            <div style={{ fontSize: 10, color: "#4a4a6a", fontWeight: 700, letterSpacing: 1.5, textTransform: "uppercase" }}>Biografía</div>
-            {isMe && !editing && <button onClick={() => setEditing(true)} style={{ background: "none", border: "none", color: "#e94560", cursor: "pointer", fontSize: 12, fontWeight: 700 }}>Editar</button>}
+        {/* STATS */}
+        <div
+          style={{
+            display: "flex",
+            gap: 12,
+            marginBottom: 24,
+            flexWrap: "wrap"
+          }}
+        >
+          {[
+            { label: "Historias", val: authorStories.length },
+            { label: "Lecturas", val: fmtNum(totalReads) },
+            { label: "Me gusta", val: fmtNum(totalLikes) }
+          ]
+            .concat(
+              isMe
+                ? [{ label: "Ganancias est.", val: "$" + earnings.toFixed(2) }]
+                : []
+            )
+            .map((s, i) => (
+              <div
+                key={i}
+                style={{
+                  flex: 1,
+                  minWidth: 90,
+                  background: "#1a1a2e",
+                  border: "1px solid #2a2a4a",
+                  borderRadius: 10,
+                  padding: "14px 12px",
+                  textAlign: "center"
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: 20,
+                    fontWeight: 800,
+                    color: "#f0eae0"
+                  }}
+                >
+                  {s.val}
+                </div>
+                <div style={{ fontSize: 11, color: "#6666aa", marginTop: 2 }}>
+                  {s.label}
+                </div>
+              </div>
+            ))}
+        </div>
+
+        {/* BIO */}
+        <div
+          style={{
+            background: "#1a1a2e",
+            border: "1px solid #2a2a4a",
+            borderRadius: 10,
+            padding: "16px 18px",
+            marginBottom: 28
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: 8
+            }}
+          >
+            <div
+              style={{
+                fontSize: 10,
+                color: "#4a4a6a",
+                fontWeight: 700,
+                letterSpacing: 1.5,
+                textTransform: "uppercase"
+              }}
+            >
+              Biografía
+            </div>
+
+            {isMe && !editing && (
+              <button
+                onClick={() => setEditing(true)}
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: "#e94560",
+                  cursor: "pointer",
+                  fontSize: 12,
+                  fontWeight: 700
+                }}
+              >
+                Editar
+              </button>
+            )}
           </div>
+
           {editing ? (
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              <textarea value={bioDraft} onChange={e => setBioDraft(e.target.value)} rows={3} style={{ ...fieldStyle(), resize: "vertical" }} />
+              <textarea
+                value={bioDraft}
+                onChange={e => setBioDraft(e.target.value)}
+                rows={3}
+                style={{ ...fieldStyle(), resize: "vertical" }}
+              />
+
               <div style={{ display: "flex", gap: 8 }}>
-                <button onClick={saveBio} style={{ ...primaryBtn(false), flex: 1, padding: "8px" }}>Guardar</button>
-                <button onClick={() => { setEditing(false); setBioDraft(info.bio); }} style={{ flex: 1, background: "none", border: "1px solid #2a2a4a", color: "#8888aa", borderRadius: 8, cursor: "pointer" }}>Cancelar</button>
+                <button
+                  onClick={saveBio}
+                  style={{ ...primaryBtn(false), flex: 1, padding: "8px" }}
+                >
+                  Guardar
+                </button>
+
+                <button
+                  onClick={() => {
+                    setEditing(false);
+                    setBioDraft(info.bio);
+                  }}
+                  style={{
+                    flex: 1,
+                    background: "none",
+                    border: "1px solid #2a2a4a",
+                    color: "#8888aa",
+                    borderRadius: 8,
+                    cursor: "pointer"
+                  }}
+                >
+                  Cancelar
+                </button>
               </div>
             </div>
           ) : (
-            <p style={{ margin: 0, fontSize: 14, lineHeight: 1.7, color: "#b0aac4" }}>{info.bio}</p>
+            <p
+              style={{
+                margin: 0,
+                fontSize: 14,
+                lineHeight: 1.7,
+                color: "#b0aac4"
+              }}
+            >
+              {info.bio}
+            </p>
           )}
         </div>
 
-        <div style={{ fontSize: 11, color: "#4a4a6a", fontWeight: 700, letterSpacing: 2, textTransform: "uppercase", marginBottom: 4 }}>
-          {authorStories.length} historia{authorStories.length !== 1 ? "s" : ""} publicada{authorStories.length !== 1 ? "s" : ""}
-           <div>
-    {authorStories.map(s => (
-      <div key={s.id}>
-        <StoryCard
-          story={s}
-          onOpen={onOpen}
-          onAuthor={() => {}}
-        />
+        {/* STORIES */}
+        <div
+          style={{
+            fontSize: 11,
+            color: "#4a4a6a",
+            fontWeight: 700,
+            letterSpacing: 2,
+            textTransform: "uppercase",
+            marginBottom: 10
+          }}
+        >
+          {authorStories.length} historia
+          {authorStories.length !== 1 ? "s" : ""} publicada
+          {authorStories.length !== 1 ? "s" : ""}
+        </div>
 
-        {isMe && (
-          <div style={{ marginBottom: 20 }}>
-            <button
-              onClick={() => {
-                if (window.confirm(`¿Borrar "${s.title}"?`)) {
-                  onDeleteStory(s.id);
-                }
-              }}
-            >
-              🗑️ Borrar historia
-            </button>
+        <div>
+          {authorStories.map(s => (
+            <div key={s.id}>
+              <StoryCard story={s} onOpen={onOpen} onAuthor={() => {}} />
 
-            <button onClick={() => onEditStory(s)}>
-              ✏️ Editar historia
-            </button>
-          </div>
-        )}
+              {isMe && (
+                <div style={{ marginBottom: 20 }}>
+                  <button
+                    onClick={() => {
+                      if (window.confirm(`¿Borrar "${s.title}"?`)) {
+                        onDeleteStory(s.id);
+                      }
+                    }}
+                  >
+                    🗑️ Borrar historia
+                  </button>
+
+                  <button onClick={() => onEditStory(s)}>
+                    ✏️ Editar historia
+                  </button>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
       </div>
-    ))}
-  </div>
-);
-
-const labelStyle = { display: "block", fontSize: 11, fontWeight: 700, color: "#6666aa", letterSpacing: 1, textTransform: "uppercase", marginBottom: 5 };
-const fieldStyle = () => ({ width: "100%", padding: "10px 12px", background: "#0f0f1e", border: "1px solid #2a2a4a", borderRadius: 8, color: "#f0eae0", fontSize: 14, outline: "none", boxSizing: "border-box" });
-const primaryBtn = (disabled) => ({ padding: "12px", background: disabled ? "#2a2a4a" : "#e94560", border: "none", color: disabled ? "#4a4a6a" : "#fff", borderRadius: 8, fontSize: 14, fontWeight: 700, cursor: disabled ? "not-allowed" : "pointer", width: "100%" });
+    </div>
+  );
+}
 
 // ── PublishModal ──────────────────────────────────────────
 function PublishModal({ onClose, onPublish, currentUser, editingStory }) {
