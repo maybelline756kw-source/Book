@@ -612,7 +612,7 @@ useEffect(() => {
 
   if (viewingAuthor) return (
     <AuthorProfile authorName={viewingAuthor} stories={stories} onClose={() => setViewingAuthor(null)} onOpen={setReading} currentUser={currentUser}
-      onUpdateProfile={(u) => setCurrentUser(u)} />
+      onUpdateProfile={(u) => setCurrentUser(u)} onDeleteStory={deleteStory} />
   );
 
   return (
