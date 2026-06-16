@@ -320,7 +320,7 @@ function AuthModal({ onClose, onAuth }) {
 }
 
 // ── AuthorProfile ───────────────────────────────────────────
-function AuthorProfile({ authorName, stories, onClose, onOpen, currentUser, onUpdateProfile,  onDeleteStory }) {
+function AuthorProfile({ authorName, stories, onClose, onOpen, currentUser, onUpdateProfile,  onDeleteStory, onEditStory }) {
   const isMe = currentUser && currentUser.name === authorName;
   const info = isMe ? currentUser : (AUTHORS[authorName] || { bio: "Autor en Books.", joined: "2025", avatar: "📘" });
   const [editing, setEditing] = useState(false);
@@ -385,48 +385,47 @@ function AuthorProfile({ authorName, stories, onClose, onOpen, currentUser, onUp
 
     {isMe && (
       <div style={{ marginBottom: 20 }}>
-       <div style={{ marginBottom: 20 }}>
 
-  <button
-    onClick={() => {
-      if (window.confirm(`¿Borrar "${s.title}"?`)) {
-        onDeleteStory(s.id);
-      }
-    }}
-    style={{
-      background: "#8b0000",
-      color: "white",
-      border: "none",
-      padding: "8px 14px",
-      borderRadius: 6,
-      cursor: "pointer",
-      fontWeight: 700,
-      marginRight: 8
-    }}
-  >
-    🗑️ Borrar historia
-  </button>
+        <button
+          onClick={() => {
+            if (window.confirm(`¿Borrar "${s.title}"?`)) {
+              onDeleteStory(s.id);
+            }
+          }}
+          style={{
+            background: "#8b0000",
+            color: "white",
+            border: "none",
+            padding: "8px 14px",
+            borderRadius: 6,
+            cursor: "pointer",
+            fontWeight: 700,
+            marginRight: 8
+          }}
+        >
+          🗑️ Borrar historia
+        </button>
 
-  <button
-    onClick={() => onEditStory(s)}
-    style={{
-      background: "#1b998b",
-      color: "white",
-      border: "none",
-      padding: "8px 14px",
-      borderRadius: 6,
-      cursor: "pointer",
-      fontWeight: 700
-    }}
-  >
-    ✏️ Editar historia
-  </button>
+        <button
+          onClick={() => onEditStory(s)}
+          style={{
+            background: "#1b998b",
+            color: "white",
+            border: "none",
+            padding: "8px 14px",
+            borderRadius: 6,
+            cursor: "pointer",
+            fontWeight: 700
+          }}
+        >
+          ✏️ Editar historia
+        </button>
 
-</div>
-            )}
+      </div>
+    )}
+
   </div>
-))}
-        
+))} 
   
 
 const labelStyle = { display: "block", fontSize: 11, fontWeight: 700, color: "#6666aa", letterSpacing: 1, textTransform: "uppercase", marginBottom: 5 };
