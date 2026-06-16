@@ -417,22 +417,65 @@ const fieldStyle = () => ({ width: "100%", padding: "10px 12px", background: "#0
 const primaryBtn = (disabled) => ({ padding: "12px", background: disabled ? "#2a2a4a" : "#e94560", border: "none", color: disabled ? "#4a4a6a" : "#fff", borderRadius: 8, fontSize: 14, fontWeight: 700, cursor: disabled ? "not-allowed" : "pointer", width: "100%" });
 
 // ── PublishModal ──────────────────────────────────────────
-function PublishModal({ onClose, onPublish, currentUser }) {
+function PublishModal({ onClose, onPublish, currentUser, editingStory }) {
   const [step, setStep] = useState(1);
-  const [form, setForm] = useState({ title: "", genre: "Fantasía", synopsis: "", chapterTitle: "", chapterContent: "", cover: COVERS[0], price: "0" });
-  const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
-  const handlePublish = () => {
-    if (!form.title || !form.synopsis || !form.chapterTitle || !form.chapterContent) return;
-    onPublish({ id: Date.now(), title: form.title, author: currentUser.name, genre: form.genre, synopsis: form.synopsis, cover: form.cover, status: "En curso", reads: 0, likes: 0, price: parseFloat(form.price) || 0, chapters: [{ id: 1, title: form.chapterTitle, content: form.chapterContent }] });
-    onClose();
+  const [form, setForm] = useState({
+  title: editingStory?.title || "",
+  genre: editingStory?.genre || "Fantasía",
+  synopsis: editingStory?.synopsis || "",
+  chapterTitle: editingStory?.chapters?.[0]?.title || "",
+  chapterContent: editingStory?.chapters?.[0]?.content || "",
+  cover: editingStory?.cover || COVERS[0],
+  price: String(editingStory?.price || 0)
+});
+
+const set = (k, v) =>
+  setForm(f => ({ ...f, [k]: v }));
+  
+const handlePublish = () => {
+  if (!form.title || !form.synopsis || !form.chapterTitle || !form.chapterContent)
+    return;
+
+  const storyData = {
+    id: editingStory?.id || Date.now(),
+    title: form.title,
+    author: currentUser.name,
+    genre: form.genre,
+    synopsis: form.synopsis,
+    cover: form.cover,
+    status: "En curso",
+    reads: editingStory?.reads || 0,
+    likes: editingStory?.likes || 0,
+    price: parseFloat(form.price) || 0,
+    chapters: [
+      {
+        id: 1,
+        title: form.chapterTitle,
+        content: form.chapterContent
+      }
+    ]
   };
+
+  onPublish(storyData);
+  onClose();
+};
+
+ 
 
   return (
     <div style={{ position: "fixed", inset: 0, zIndex: 200, background: "rgba(0,0,0,0.75)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
       <div style={{ background: "#1a1a2e", border: "1px solid #2a2a4a", borderRadius: 16, width: "100%", maxWidth: 560, maxHeight: "90vh", overflowY: "auto", padding: 28 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
-          <h2 style={{ margin: 0, fontSize: 20, color: "#f0eae0", fontFamily: "Georgia, serif" }}>{step === 1 ? "Tu historia" : step === 2 ? "Primer capítulo" : "Vista previa"}</h2>
+         <h2>
+  {editingStory
+    ? (step === 1 ? "Editar historia"
+      : step === 2 ? "Editar capítulo"
+      : "Vista previa")
+    : (step === 1 ? "Tu historia"
+      : step === 2 ? "Primer capítulo"
+      : "Vista previa")}
+</h2>
           <button onClick={onClose} style={{ background: "none", border: "none", color: "#6666aa", cursor: "pointer", fontSize: 22 }}>✕</button>
         </div>
         <div style={{ display: "flex", gap: 6, marginBottom: 24 }}>{[1, 2, 3].map(s => <div key={s} style={{ flex: 1, height: 3, borderRadius: 2, background: s <= step ? "#e94560" : "#2a2a4a" }} />)}</div>
@@ -493,7 +536,9 @@ function PublishModal({ onClose, onPublish, currentUser }) {
             </div>
             <div style={{ display: "flex", gap: 8 }}>
               <button onClick={() => setStep(2)} style={{ flex: 1, padding: "10px", background: "none", border: "1px solid #2a2a4a", color: "#8888aa", borderRadius: 8, cursor: "pointer" }}>← Editar</button>
-              <button onClick={handlePublish} style={{ ...primaryBtn(false), flex: 2 }}>✦ Publicar historia</button>
+             <button onClick={handlePublish}>
+  {editingStory ? "💾 Guardar cambios" : "✦ Publicar historia"}
+</button>
             </div>
           </div>
         )}
