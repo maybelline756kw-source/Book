@@ -385,32 +385,49 @@ function AuthorProfile({ authorName, stories, onClose, onOpen, currentUser, onUp
 
     {isMe && (
       <div style={{ marginBottom: 20 }}>
-        <button
-          onClick={() => {
-            if (window.confirm(`¿Borrar "${s.title}"?`)) {
-              onDeleteStory(s.id);
-            }
-          }}
-          style={{
-            background: "#8b0000",
-            color: "white",
-            border: "none",
-            padding: "8px 14px",
-            borderRadius: 6,
-            cursor: "pointer",
-            fontWeight: 700
-          }}
-        >
-          🗑️ Borrar historia
-        </button>
-      </div>
-    )}
+       <div style={{ marginBottom: 20 }}>
+
+  <button
+    onClick={() => {
+      if (window.confirm(`¿Borrar "${s.title}"?`)) {
+        onDeleteStory(s.id);
+      }
+    }}
+    style={{
+      background: "#8b0000",
+      color: "white",
+      border: "none",
+      padding: "8px 14px",
+      borderRadius: 6,
+      cursor: "pointer",
+      fontWeight: 700,
+      marginRight: 8
+    }}
+  >
+    🗑️ Borrar historia
+  </button>
+
+  <button
+    onClick={() => onEditStory(s)}
+    style={{
+      background: "#1b998b",
+      color: "white",
+      border: "none",
+      padding: "8px 14px",
+      borderRadius: 6,
+      cursor: "pointer",
+      fontWeight: 700
+    }}
+  >
+    ✏️ Editar historia
+  </button>
+
+</div>
+            )}
   </div>
 ))}
-      </div>
-    </div>
-  );
-}
+        
+  
 
 const labelStyle = { display: "block", fontSize: 11, fontWeight: 700, color: "#6666aa", letterSpacing: 1, textTransform: "uppercase", marginBottom: 5 };
 const fieldStyle = () => ({ width: "100%", padding: "10px 12px", background: "#0f0f1e", border: "1px solid #2a2a4a", borderRadius: 8, color: "#f0eae0", fontSize: 14, outline: "none", boxSizing: "border-box" });
@@ -566,6 +583,7 @@ export default function App() {
   const [search, setSearch] = useState("");
   const [reading, setReading] = useState(null);
   const [publishing, setPublishing] = useState(false);
+  const [editingStory, setEditingStory] = useState(null);
   const [toast, setToast] = useState(null);
   const [currentUser, setCurrentUser] = useState(() => {
   const saved = localStorage.getItem("books_user");
