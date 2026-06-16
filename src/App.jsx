@@ -545,6 +545,15 @@ export default function App() {
   );
 }, [stories]);
 
+  const deleteStory = (storyId) => {
+  setStories(prev =>
+    prev.filter(story => story.id !== storyId)
+  );
+
+  setToast("Historia eliminada");
+  setTimeout(() => setToast(null), 3000);
+};
+
 useEffect(() => {
   localStorage.setItem(
     "books_owned",
