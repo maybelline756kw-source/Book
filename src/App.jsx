@@ -473,16 +473,52 @@ function PublishModal({ onClose, onPublish, currentUser }) {
 
 // ── Main App ──────────────────────────────────────────────
 export default function App() {
-  const [stories, setStories] = useState(INITIAL_STORIES);
+ const [stories, setStories] = useState(() => {
+  const saved = localStorage.getItem("books_stories");
+
+  if (saved) {
+    try {
+      return JSON.parse(saved);
+    } catch {
+      return INITIAL_STORIES;
+    }
+  }
+
+  return INITIAL_STORIES;
+});
   const [genre, setGenre] = useState("Todos");
   const [search, setSearch] = useState("");
   const [reading, setReading] = useState(null);
   const [publishing, setPublishing] = useState(false);
   const [toast, setToast] = useState(null);
-  const [currentUser, setCurrentUser] = useState(null);
+  const [currentUser, setCurrentUser] = useState(() => {
+  const saved = localStorage.getItem("books_user");
+
+  if (saved) {
+    try {
+      return JSON.parse(saved);
+    } catch {
+      return null;
+    }
+  }
+
+  return null;
+});
   const [showAuth, setShowAuth] = useState(false);
   const [viewingAuthor, setViewingAuthor] = useState(null);
-  const [ownedBooks, setOwnedBooks] = useState([]);
+ const [ownedBooks, setOwnedBooks] = useState(() => {
+  const saved = localStorage.getItem("books_owned");
+
+  if (saved) {
+    try {
+      return JSON.parse(saved);
+    } catch {
+      return [];
+    }
+  }
+
+  return [];
+});
   const [buying, setBuying] = useState(null);
 
   const filtered = stories.filter(s => {
@@ -494,8 +530,38 @@ export default function App() {
 
   const handlePublish = (story) => { setStories(prev => [story, ...prev]); setToast("¡Historia publicada con éxito!"); setTimeout(() => setToast(null), 3000); };
   const handleAuth = (user) => { setCurrentUser(user); setShowAuth(false); setToast(`¡Bienvenido/a, ${user.name}!`); setTimeout(() => setToast(null), 2500); };
-  const handleBuyConfirm = (storyId) => { setOwnedBooks(prev => [...prev, storyId]); };
+  const handleBuyConfirm = (storyId) => {
+  setOwnedBooks(prev => {
+    if (prev.includes(storyId)) return prev;
+    return [...prev, storyId];
+  });
+};
   const tryPublish = () => { if (!currentUser) { setShowAuth(true); } else { setPublishing(true); } };
+
+  useEffect(() => {
+  localStorage.setItem(
+    "books_stories",
+    JSON.stringify(stories)
+  );
+}, [stories]);
+
+useEffect(() => {
+  localStorage.setItem(
+    "books_owned",
+    JSON.stringify(ownedBooks)
+  );
+}, [ownedBooks]);
+
+useEffect(() => {
+  if (currentUser) {
+    localStorage.setItem(
+      "books_user",
+      JSON.stringify(currentUser)
+    );
+  } else {
+    localStorage.removeItem("books_user");
+  }
+}, [currentUser]);
 
   if (reading) return (
     <>
