@@ -319,6 +319,7 @@ function AuthModal({ onClose, onAuth }) {
   );
 }
 
+// ── AuthorProfile ──────────────────────────────────────────
 function AuthorProfile({
   authorName,
   stories,
@@ -331,8 +332,7 @@ function AuthorProfile({
 }) {
   const isMe = currentUser && currentUser.name === authorName;
 
-  const info = isMe
-    ? currentUser
+  const info = isMe    ? currentUser
     : (AUTHORS[authorName] || {
         bio: "Autor en Books.",
         joined: "2025",
@@ -634,19 +634,44 @@ function AuthorProfile({
               <StoryCard story={s} onOpen={onOpen} onAuthor={() => {}} />
 
               {isMe && (
-                <div style={{ marginBottom: 20 }}>
+                <div style={{ 
+                  display: 'flex', 
+                  gap: 10, 
+                  marginBottom: 20,
+                  justifyContent: 'flex-end'
+                }}>
                   <button
                     onClick={() => {
                       if (window.confirm(`¿Borrar "${s.title}"?`)) {
                         onDeleteStory(s.id);
                       }
                     }}
+                    style={{
+                      background: 'none',
+                      border: '1px solid #e94560',
+                      color: '#e94560',
+                      padding: '5px 12px',
+                      borderRadius: 4,
+                      fontSize: 12,
+                      cursor: 'pointer'
+                    }}
                   >
-                    🗑️ Borrar historia
+                    🗑️ Borrar
                   </button>
 
-                  <button onClick={() => onEditStory(s)}>
-                    ✏️ Editar historia
+                  <button 
+                    onClick={() => onEditStory(s)}
+                    style={{
+                      background: '#e94560',
+                      border: 'none',
+                      color: '#fff',
+                      padding: '5px 12px',
+                      borderRadius: 4,
+                      fontSize: 12,
+                      cursor: 'pointer'
+                    }}
+                  >
+                    ✏️ Editar
                   </button>
                 </div>
               )}
@@ -663,61 +688,102 @@ function PublishModal({ onClose, onPublish, currentUser, editingStory }) {
   const [step, setStep] = useState(1);
 
   const [form, setForm] = useState({
-  title: editingStory?.title || "",
-  genre: editingStory?.genre || "Fantasía",
-  synopsis: editingStory?.synopsis || "",
-  chapterTitle: editingStory?.chapters?.[0]?.title || "",
-  chapterContent: editingStory?.chapters?.[0]?.content || "",
-  cover: editingStory?.cover || COVERS[0],
-  price: String(editingStory?.price || 0)
-});
+    title: editingStory?.title || "",
+    genre: editingStory?.genre || "Fantasía",
+    synopsis: editingStory?.synopsis || "",
+    chapterTitle: editingStory?.chapters?.[0]?.title || "",
+    chapterContent: editingStory?.chapters?.[0]?.content || "",
+    cover: editingStory?.cover || COVERS[0],
+    price: String(editingStory?.price || 0)
+  });
 
-const set = (k, v) =>
-  setForm(f => ({ ...f, [k]: v }));
+  const set = (k, v) =>
+    setForm(f => ({ ...f, [k]: v }));
   
-const handlePublish = () => {
-  if (!form.title || !form.synopsis || !form.chapterTitle || !form.chapterContent)
-    return;
+  const handlePublish = () => {
+    if (!form.title || !form.synopsis || !form.chapterTitle || !form.chapterContent)
+      return;
 
-  const storyData = {
-    id: editingStory?.id || Date.now(),
-    title: form.title,
-    author: currentUser.name,
-    genre: form.genre,
-    synopsis: form.synopsis,
-    cover: form.cover,
-    status: "En curso",
-    reads: editingStory?.reads || 0,
-    likes: editingStory?.likes || 0,
-    price: parseFloat(form.price) || 0,
-    chapters: [
-      {
-        id: 1,
-        title: form.chapterTitle,
-        content: form.chapterContent
-      }
-    ]
+    const storyData = {
+      id: editingStory?.id || Date.now(),
+      title: form.title,
+      author: editingStory?.author || currentUser.name,
+      genre: form.genre,
+      synopsis: form.synopsis,
+      cover: form.cover,
+      status: editingStory?.status || "En curso",
+      reads: editingStory?.reads || 0,
+      likes: editingStory?.likes || 0,
+      price: parseFloat(form.price) || 0,
+      chapters: editingStory?.chapters?.length > 1 
+        ? [
+            {
+              id: 1,
+              title: form.chapterTitle,
+              content: form.chapterContent
+            },
+            ...editingStory.chapters.slice(1)
+          ]
+        : [
+            {
+              id: 1,
+              title: form.chapterTitle,
+              content: form.chapterContent
+            }
+          ]
+    };
+
+    onPublish(storyData);
+    onClose();
   };
 
-  onPublish(storyData);
-  onClose();
-};
+  const labelStyle = {
+    display: "block",
+    fontSize: 11,
+    fontWeight: 700,
+    color: "#6666aa",
+    letterSpacing: 1,
+    textTransform: "uppercase",
+    marginBottom: 5
+  };
 
- 
+  const fieldStyle = () => ({
+    width: "100%",
+    padding: "10px 12px",
+    background: "#0f0f1e",
+    border: "1px solid #2a2a4a",
+    borderRadius: 8,
+    color: "#f0eae0",
+    fontSize: 14,
+    outline: "none",
+    boxSizing: "border-box"
+  });
+
+  const primaryBtn = (disabled) => ({
+    padding: "12px",
+    background: disabled ? "#2a2a4a" : "#e94560",
+    border: "none",
+    color: disabled ? "#4a4a6a" : "#fff",
+    borderRadius: 8,
+    fontSize: 14,
+    fontWeight: 700,
+    cursor: disabled ? "not-allowed" : "pointer",
+    width: "100%"
+  });
 
   return (
     <div style={{ position: "fixed", inset: 0, zIndex: 200, background: "rgba(0,0,0,0.75)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
       <div style={{ background: "#1a1a2e", border: "1px solid #2a2a4a", borderRadius: 16, width: "100%", maxWidth: 560, maxHeight: "90vh", overflowY: "auto", padding: 28 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
-         <h2>
-  {editingStory
-    ? (step === 1 ? "Editar historia"
-      : step === 2 ? "Editar capítulo"
-      : "Vista previa")
-    : (step === 1 ? "Tu historia"
-      : step === 2 ? "Primer capítulo"
-      : "Vista previa")}
-</h2>
+          <h2 style={{ margin: 0, fontSize: 19, color: "#f0eae0", fontFamily: "Georgia, serif" }}>
+            {editingStory
+              ? (step === 1 ? "Editar historia"
+                : step === 2 ? "Editar capítulo"
+                : "Vista previa")
+              : (step === 1 ? "Tu historia"
+                : step === 2 ? "Primer capítulo"
+                : "Vista previa")}
+          </h2>
           <button onClick={onClose} style={{ background: "none", border: "none", color: "#6666aa", cursor: "pointer", fontSize: 22 }}>✕</button>
         </div>
         <div style={{ display: "flex", gap: 6, marginBottom: 24 }}>{[1, 2, 3].map(s => <div key={s} style={{ flex: 1, height: 3, borderRadius: 2, background: s <= step ? "#e94560" : "#2a2a4a" }} />)}</div>
@@ -778,9 +844,9 @@ const handlePublish = () => {
             </div>
             <div style={{ display: "flex", gap: 8 }}>
               <button onClick={() => setStep(2)} style={{ flex: 1, padding: "10px", background: "none", border: "1px solid #2a2a4a", color: "#8888aa", borderRadius: 8, cursor: "pointer" }}>← Editar</button>
-             <button onClick={handlePublish}>
-  {editingStory ? "💾 Guardar cambios" : "✦ Publicar historia"}
-</button>
+              <button onClick={handlePublish} style={{ flex: 2, padding: "10px", background: "#e94560", border: "none", color: "#fff", borderRadius: 8, fontSize: 14, fontWeight: 700, cursor: "pointer" }}>
+                {editingStory ? "💾 Guardar cambios" : "✦ Publicar historia"}
+              </button>
             </div>
           </div>
         )}
@@ -791,19 +857,19 @@ const handlePublish = () => {
 
 // ── Main App ──────────────────────────────────────────────
 export default function App() {
- const [stories, setStories] = useState(() => {
-  const saved = localStorage.getItem("books_stories");
+  const [stories, setStories] = useState(() => {
+    const saved = localStorage.getItem("books_stories");
 
-  if (saved) {
-    try {
-      return JSON.parse(saved);
-    } catch {
-      return INITIAL_STORIES;
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch {
+        return INITIAL_STORIES;
+      }
     }
-  }
 
-  return INITIAL_STORIES;
-});
+    return INITIAL_STORIES;
+  });
   const [genre, setGenre] = useState("Todos");
   const [search, setSearch] = useState("");
   const [reading, setReading] = useState(null);
@@ -811,33 +877,33 @@ export default function App() {
   const [editingStory, setEditingStory] = useState(null);
   const [toast, setToast] = useState(null);
   const [currentUser, setCurrentUser] = useState(() => {
-  const saved = localStorage.getItem("books_user");
+    const saved = localStorage.getItem("books_user");
 
-  if (saved) {
-    try {
-      return JSON.parse(saved);
-    } catch {
-      return null;
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch {
+        return null;
+      }
     }
-  }
 
-  return null;
-});
+    return null;
+  });
   const [showAuth, setShowAuth] = useState(false);
   const [viewingAuthor, setViewingAuthor] = useState(null);
- const [ownedBooks, setOwnedBooks] = useState(() => {
-  const saved = localStorage.getItem("books_owned");
+  const [ownedBooks, setOwnedBooks] = useState(() => {
+    const saved = localStorage.getItem("books_owned");
 
-  if (saved) {
-    try {
-      return JSON.parse(saved);
-    } catch {
-      return [];
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch {
+        return [];
+      }
     }
-  }
 
-  return [];
-});
+    return [];
+  });
   const [buying, setBuying] = useState(null);
 
   const filtered = stories.filter(s => {
@@ -847,49 +913,89 @@ export default function App() {
   });
   const featured = stories.slice(0, 3);
 
-  const handlePublish = (story) => { setStories(prev => [story, ...prev]); setToast("¡Historia publicada con éxito!"); setTimeout(() => setToast(null), 3000); };
-  const handleAuth = (user) => { setCurrentUser(user); setShowAuth(false); setToast(`¡Bienvenido/a, ${user.name}!`); setTimeout(() => setToast(null), 2500); };
+  const handlePublish = (story) => {
+    if (editingStory) {
+      // Modo edición: reemplazar la historia existente
+      setStories(prev => 
+        prev.map(s => s.id === story.id ? story : s)
+      );
+      setEditingStory(null); // Limpiar el estado de edición
+      setToast("¡Historia actualizada con éxito!");
+    } else {
+      // Modo publicación nueva
+      setStories(prev => [story, ...prev]);
+      setToast("¡Historia publicada con éxito!");
+    }
+    setTimeout(() => setToast(null), 3000);
+  };
+
+  const handleEditStory = (story) => {
+    // Verificar que el usuario es el autor
+    if (currentUser?.name !== story.author) {
+      setToast("Solo el autor puede editar esta historia");
+      setTimeout(() => setToast(null), 3000);
+      return;
+    }
+    
+    setEditingStory(story);
+    setPublishing(true); // Reutiliza el modal de publicación
+  };
+
+  const handleAuth = (user) => { 
+    setCurrentUser(user); 
+    setShowAuth(false); 
+    setToast(`¡Bienvenido/a, ${user.name}!`); 
+    setTimeout(() => setToast(null), 2500); 
+  };
+
   const handleBuyConfirm = (storyId) => {
-  setOwnedBooks(prev => {
-    if (prev.includes(storyId)) return prev;
-    return [...prev, storyId];
-  });
-};
-  const tryPublish = () => { if (!currentUser) { setShowAuth(true); } else { setPublishing(true); } };
+    setOwnedBooks(prev => {
+      if (prev.includes(storyId)) return prev;
+      return [...prev, storyId];
+    });
+  };
+
+  const tryPublish = () => { 
+    if (!currentUser) { 
+      setShowAuth(true); 
+    } else { 
+      setPublishing(true); 
+    } 
+  };
 
   useEffect(() => {
-  localStorage.setItem(
-    "books_stories",
-    JSON.stringify(stories)
-  );
-}, [stories]);
+    localStorage.setItem(
+      "books_stories",
+      JSON.stringify(stories)
+    );
+  }, [stories]);
 
   const deleteStory = (storyId) => {
-  setStories(prev =>
-    prev.filter(story => story.id !== storyId)
-  );
-
-  setToast("Historia eliminada");
-  setTimeout(() => setToast(null), 3000);
-};
-
-useEffect(() => {
-  localStorage.setItem(
-    "books_owned",
-    JSON.stringify(ownedBooks)
-  );
-}, [ownedBooks]);
-
-useEffect(() => {
-  if (currentUser) {
-    localStorage.setItem(
-      "books_user",
-      JSON.stringify(currentUser)
+    setStories(prev =>
+      prev.filter(story => story.id !== storyId)
     );
-  } else {
-    localStorage.removeItem("books_user");
-  }
-}, [currentUser]);
+
+    setToast("Historia eliminada");
+    setTimeout(() => setToast(null), 3000);
+  };
+
+  useEffect(() => {
+    localStorage.setItem(
+      "books_owned",
+      JSON.stringify(ownedBooks)
+    );
+  }, [ownedBooks]);
+
+  useEffect(() => {
+    if (currentUser) {
+      localStorage.setItem(
+        "books_user",
+        JSON.stringify(currentUser)
+      );
+    } else {
+      localStorage.removeItem("books_user");
+    }
+  }, [currentUser]);
 
   if (reading) return (
     <>
@@ -899,8 +1005,16 @@ useEffect(() => {
   );
 
   if (viewingAuthor) return (
-    <AuthorProfile authorName={viewingAuthor} stories={stories} onClose={() => setViewingAuthor(null)} onOpen={setReading} currentUser={currentUser}
-      onUpdateProfile={(u) => setCurrentUser(u)} onDeleteStory={deleteStory} />
+    <AuthorProfile 
+      authorName={viewingAuthor} 
+      stories={stories} 
+      onClose={() => setViewingAuthor(null)} 
+      onOpen={setReading} 
+      currentUser={currentUser}
+      onUpdateProfile={(u) => setCurrentUser(u)} 
+      onDeleteStory={deleteStory}
+      onEditStory={handleEditStory}
+    />
   );
 
   return (
@@ -964,8 +1078,9 @@ useEffect(() => {
         )}
       </div>
 
-      {publishing && <PublishModal onClose={() => setPublishing(false)} onPublish={handlePublish} currentUser={currentUser} />}
+      {publishing && <PublishModal onClose={() => setPublishing(false)} onPublish={handlePublish} currentUser={currentUser} editingStory={editingStory} />}
       {showAuth && <AuthModal onClose={() => setShowAuth(false)} onAuth={handleAuth} />}
     </div>
   );
 }
+
